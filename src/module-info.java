@@ -1,0 +1,9 @@
+/**
+ * 
+ */
+/**
+ * @author ryzen
+ *
+ */
+module Test {
+}

@@ -74,7 +74,7 @@ public class Main {
 					for(int i=0; i<numOfTimeSteps; i++) {
 						try {
 							Thread.sleep(waitTimeBetweenSteps);
-							int currentFloor = (int) (Math.random()*55);
+							int currentFloor = (int) (Math.random()*55); //should be minFloor+number*(maxFloor-minFloor+1)
 							int destinationFloor = (int) (Math.random()*55);
 							if(currentFloor != destinationFloor) {
 								ElevatorRequest request = new ElevatorRequest(currentFloor,destinationFloor);

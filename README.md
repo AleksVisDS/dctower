@@ -25,4 +25,4 @@ Employee joins elevator 3 on floor 35, request: (35,40).
 Employee enters empty elevator 4, request: (35,16).
 ```
 One employee joins elevator 3 on the 35th floor and goes up to the 40th floor.
-Another employee enters an empty elevator on the same floor and foes down to the 16th floor.
+Another employee enters an empty elevator on the same floor and goes down to the 16th floor.

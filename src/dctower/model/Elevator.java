@@ -1,9 +1,18 @@
-package dctower;
+package dctower.model;
 
 import java.util.PriorityQueue;
 
+import dctower.exceptions.InvalidFloorException;
+
+/**
+ * Model of an elevator.
+ * 
+ * @author Aleksandar Doknic
+ * @version 2022-10-18
+ * 
+ */
 public class Elevator {
-	public static int counter = 0;
+	private static int counter = 0;
 	private int id;
 	
 	private int currentFloor;
@@ -15,10 +24,9 @@ public class Elevator {
 	/**
 	 * Elevator class
 	 * @param currentFloor the currentFloor to set
-	 * @param destinationFloor the destinationFloor to set
 	 * @param minFloor the minFloor to set
 	 * @param maxFloor the maxFloor to set
-	 * @throws InvalidFloorException
+	 * @throws InvalidFloorException maxFloor is smaller than minFloor or currentFloor is outside boundaries
 	 */
 	public Elevator(int currentFloor, int minFloor, int maxFloor) throws InvalidFloorException {
 		if(minFloor > maxFloor) 
@@ -29,7 +37,7 @@ public class Elevator {
 		this.setCurrentFloor(currentFloor);
 		this.selectedFloors = new PriorityQueue<Integer>();
 		this.id = ++counter;
-		System.out.println("Elevator "+ this.getId() +" created.");
+		//System.out.println("Elevator "+ this.getId() +" created.");
 	}
 
 	/**
@@ -41,7 +49,7 @@ public class Elevator {
 
 	/**
 	 * @param currentFloor the currentFloor to set
-	 * @throws InvalidFloorException 
+	 * @throws InvalidFloorException Floor outside valid range
 	 */
 	public void setCurrentFloor(int currentFloor) throws InvalidFloorException {
 		if(currentFloor > this.maxFloor || currentFloor < this.minFloor) {
@@ -59,8 +67,8 @@ public class Elevator {
 	}
 
 	/**
-	 * @param Selects another floor
-	 * @throws InvalidFloorException 
+	 * @param floor Selects another floor
+	 * @throws InvalidFloorException Floor outside valid range
 	 */
 	public void addFloorSelection(int floor) throws InvalidFloorException {
 		if(currentFloor > this.maxFloor || currentFloor < this.minFloor) {

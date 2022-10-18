@@ -1,20 +1,36 @@
-package dctower;
+package dctower.model;
 
+/**
+ * Model of an elevator request with current floor and destination floor.
+ * 
+ * @author Aleksandar Doknic
+ * @version 2022-10-18
+ * 
+ */
 public class ElevatorRequest {
 	private static int counter = 0;
 	private int id = 0;
 	
 	private int currentFloor;
 	private int destinationFloor;
-	//Elevator is not on floor but one was called.
+	//An elevator was already called for this request:
 	private boolean elevatorCalled = false;
 	
-	ElevatorRequest(int currentFloor, int destinationFloor) {
+	/**
+	 * Elevator request
+	 * 
+	 * @param currentFloor the floor where the request was made
+	 * @param destinationFloor the destination floor
+	 */
+	public ElevatorRequest(int currentFloor, int destinationFloor) {
 		this.currentFloor = currentFloor;
 		this.destinationFloor = destinationFloor;
 		id = ++counter;
 	}
 	
+	/**
+	 * @return the direction of the elevator
+	 */
 	public String getDirection() {
 		String direction = "";
 		if(getDestinationFloor() > getCurrentFloor())

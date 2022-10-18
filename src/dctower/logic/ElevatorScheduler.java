@@ -1,38 +1,66 @@
-package dctower;
+package dctower.logic;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import dctower.exceptions.InvalidFloorException;
+import dctower.model.Elevator;
+import dctower.model.ElevatorRequest;
+import dctower.util.ElevatorCollection;
+
 /**
- * The scheduler for the elevators. A request is processed when the
- * employee enters the elevators and the correct destination floor
- * is selected.
+ * The scheduler for the elevators. A request is created by a push on the elevator
+ * button and has a current floor and a destination floor. The scheduler tries to
+ * find the next available elevator in the following way.
+ * 
+ * <p>
+ * 1. Check if an elevator is already on the same floor and moving into the same direction.
+ * If yes, use this elevator and select the destination floor in the elevator as an additional stop.
+ * 
+ * If not:
+ * 2. Check if an elevator is already on the same floor but not being used.
+ * If yes, use this elevator and select the destination floor in the elevator.
+ * 
+ * If not:
+ * 3. Try to find available elevator on another floor and call it to the current floor.
+ * If not, the employee has to wait until an elevator becomes available or passes by in the same direction.
+ * 
+ * A request is processed when the employee enters an elevator on the floor (case 1 and 2).
+ * </p>
+ * 
+ * @author Aleksandar Doknic
+ * @version 2022-10-18
  */
 public class ElevatorScheduler {
 	
 	private ElevatorCollection elevators;
 	private ConcurrentLinkedQueue<ElevatorRequest> elevatorRequests = new ConcurrentLinkedQueue<ElevatorRequest>();
 	
+	/**
+	 * Elevator scheduler.
+	 * 
+	 * @param elevators Collection of elevators that should be scheduled.
+	 */
 	public ElevatorScheduler(ElevatorCollection elevators) {
 		this.elevators = elevators;
 		System.out.println("Elevator scheduler initialized.");
 	}
 	
+	/**
+	 * Adds (thread-safe) request for an elevator.
+	 * 
+	 * @param elevatorRequest the elevator request
+	 */
 	public void addRequest(ElevatorRequest elevatorRequest) {
 		elevatorRequests.add(elevatorRequest);
-	}
-	
-	public String checkAvailableElevators() {
-		String s = elevators.toString();
-		System.out.printf("%s", s);
-		return s;
 	}
 	
 	/**
 	 * Tries to assign the requests to elevators by first trying to find elevators on the same
 	 * floor that are empty or move into the same direction. If that fails, it tries to call
 	 * an available elevator from another floor. If that fails, the user has to wait for the next cycle.
-	 * @throws InvalidFloorException
+	 * 
+	 * @throws InvalidFloorException Thrown when an invalid floor was selected.
 	 */
 	public void processRequests() throws InvalidFloorException {
 		ArrayList<ElevatorRequest> processedRequests = new ArrayList<ElevatorRequest>();
@@ -75,8 +103,7 @@ public class ElevatorScheduler {
 	}
 	
 	/**
-	 * How many employees are still waiting
-	 * @return
+	 * @return the number of unprocessed requests (employees that are still waiting for an elevator).
 	 */
 	public int numOfRemainingRequests() {
 		return elevatorRequests.size();

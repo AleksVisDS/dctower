@@ -1,13 +1,31 @@
-package dctower;
+package dctower.tests;
 
+import dctower.exceptions.InvalidFloorException;
+import dctower.logic.ElevatorScheduler;
+import dctower.model.Elevator;
+import dctower.model.ElevatorRequest;
+import dctower.util.ElevatorCollection;
+
+/**
+ * A simple class that runs a simulation of the elevator.
+ * One thread is created to simulate the time where the elevators move.
+ * A number of threads is created to simulate the requests that come in.
+ * 
+ * Runs approx. 1 minute.
+ * 
+ * @author Aleksandar Doknic
+ * @version 2022-10-18
+ *
+ */
 public class Main {
 	
 	public static void main(String[] args) {
-		
+
+		final int numOfElevators = 7;
+		final int currentFloor = 0, minFloor = 0, maxFloor = 55;
 		ElevatorCollection elevators = new ElevatorCollection();
-		int currentFloor = 0, destinationFloor = 0, minFloor = 0, maxFloor = 55;
 		try {
-			for(int i=0; i<7; i++)
+			for(int i=0; i<numOfElevators; i++)
 				elevators.add(new Elevator(currentFloor, minFloor, maxFloor));
 		} catch (InvalidFloorException e) {
 			e.printStackTrace();
@@ -19,13 +37,16 @@ public class Main {
 		 */
 		Thread timeThread = new Thread(new Runnable() {
 			public void run() {
-				int timeSteps = 600;
-				int waitTime = 100;
-				for(int i=0; i<timeSteps; i++) {
+				final int numOfTimeSteps = 600;
+				final int waitTimeBetweenSteps = 100; //600 timesteps * 100 ms = 60000 ms = at least 60 seconds
+				
+				for(int i=0; i<numOfTimeSteps; i++) {
 					try {
-						Thread.sleep(waitTime);
+						Thread.sleep(waitTimeBetweenSteps);
 						nextTimeStep(elevators);
 						elevatorScheduler.processRequests();
+						
+						//prints state of the elevators and the number of waiting employees/unprocessed requests:
 						System.out.println(elevators + "(waiting:" + elevatorScheduler.numOfRemainingRequests()+")");
 					} catch (InvalidFloorException e) {
 						e.printStackTrace();
@@ -40,7 +61,7 @@ public class Main {
 		timeThread.start();
 
 		/*
-		 * Simulates employee requests
+		 * Simulates employee requests (randomly selected floors)
 		 */
 		final int testRequestThreads = 5;
 		for(int i=0; i<testRequestThreads; i++) {
@@ -48,10 +69,11 @@ public class Main {
 				public void run() {
 					System.out.printf("Test thread %d\n",Thread.currentThread().getId());
 					//int timeSteps = totalRuntimeInSeconds;
-					int timeSteps = 3;
-					int waitTime = 1000;
-					for(int i=0; i<timeSteps; i++) {
+					final int numOfTimeSteps = 3;
+					final int waitTimeBetweenSteps = 1000;
+					for(int i=0; i<numOfTimeSteps; i++) {
 						try {
+							Thread.sleep(waitTimeBetweenSteps);
 							int currentFloor = (int) (Math.random()*55);
 							int destinationFloor = (int) (Math.random()*55);
 							if(currentFloor != destinationFloor) {
@@ -59,7 +81,6 @@ public class Main {
 								elevatorScheduler.addRequest(request);
 								System.out.printf("New request: [current floor: %d, destination floor: %d, direction: %s]\n",currentFloor,destinationFloor,request.getDirection());
 							}
-							Thread.sleep(1000);
 						} catch (InterruptedException e) {
 						}
 					}
@@ -70,6 +91,11 @@ public class Main {
 		}
 	}
 	
+	/**
+	 * Moves all elevators one step in the current moving direction.
+	 * 
+	 * @param elevators the elevators.
+	 */
 	public static void nextTimeStep(ElevatorCollection elevators) {
 		elevators.forEach((Elevator e) -> {
 			switch(e.getDirection()) {
